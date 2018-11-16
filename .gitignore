@@ -1,0 +1,4 @@
+# Compiled object files, etc.
+*.o
+*.so
+*.pyc
