@@ -1,7 +1,7 @@
+// compile with g++ -o examples examples.cpp -l armadillo -std=c++11
+
 #include <iostream>
 #include <armadillo>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string>
 
 using namespace std;
@@ -13,46 +13,30 @@ using namespace arma;
  */
 int main() {
 
-    /******************************
-     * 2D matrix operations.
-     ******************************/
-
     // Demonstrates different ways to
     // create a 5x10 matrix and set values to zero.
-    mat zero_matrix(5, 10); 
+    mat zero_matrix(5, 10);
     zero_matrix.zeros(); 
-    cout<<"A 5x10 zero matrix:"<<endl<<zero_matrix<<endl;
+    cout << "A 5x10 zero matrix:" << endl << zero_matrix << endl;
     
     // An alternative way to set matrices to zero.
-    mat zero_matrix1;
-    zero_matrix1.zeros(10, 20);
-    cout<<"A 10x20 zero matrix:"<<endl<<zero_matrix1<<endl;
+    mat zero_matrix1(10, 20, fill::zeros);
+    cout << "A 10x20 zero matrix:" << endl << zero_matrix1 << endl;
 
-    // Sets all elements to random values
+    // Sets all elements to uniformly distributed random values
 	mat A = randu<mat>(4, 5);
-    cout<<"Random values:"<<endl<<A<<endl;
+    cout << "Random values:" << endl << A << endl;
 
     // Fills the desired vector with a particular value.
     mat custom_vals(4, 5);
-    custom_vals.fill(155.0);
-    cout<<"4x5 matrix filled with the double 155.0"<<endl<<custom_vals<<endl;
+    custom_vals.fill(155.0);    
+    cout<<"4x5 matrix filled with the double 155.0" << endl << custom_vals<<endl;
 
     // Determinant of a 4x4 matrix
     mat dm = randu<mat>(4, 4);
     double d = det(dm);
-    cout<<"Det("<<endl<<dm<<")"<<endl;
-    cout<<"Determinant of a 4x4 matrix: "<<d<<endl;
-
-    
-    /***********************************
-     * lambda function with transform
-     ***********************************/
-    A = ones<mat>(4, 5);
-
-    // add 123 to each element
-    // A.transform( [](double val) { return (val + 123.0); } );
-
-
+    cout << "Det(" << endl << dm << ")" << endl;
+    cout << "Determinant of a 4x4 matrix: " << d << endl;
 
     /*******************************
      * FileIO
@@ -70,31 +54,54 @@ int main() {
     cout<<"\nSaving randoly generated matrix as an arma_bin...arma_bin_f.bin\n";
     save_success = f.save("./arma_bin_f.bin");
     string string_success = save_success ? "Save success\n" : "Save unsuccessful\n";
-    cout<<string_success<<endl;
-
-    // Save the file in arma_ascii format
-    // Not working at the moment
-    // cout<<"Saving the randomly generated matrix as an arma_ascii file...arma_ascii_f.txt\n";
-    // f.save("arma_ascii_f.txt". arma_ascii); // This is not working.
-    
-    // Not working at the moment
-    // Saving as HDF5 format with an internal dataset called "my data"
-    // cout<<"Saving the randomly generated matrix as an hdf5 file...\n";
-    // f.save(hdf5_name("f_hdf5.h5", "my_data"));
-
+    cout << string_success << endl;
+   
     // Loading files
-    cout<<"Loading and printing all the saved files...\n";
+    cout << "Loading and printing all the saved files...\n";
     mat load_matrix;
-    cout<<"Loading arma_bin_f.bin\n";
+    cout << "Loading arma_bin_f.bin\n";
     load_matrix.load("arma_bin_f.bin");
-    cout<<"Loaded matrix:\n"<<load_matrix<<endl<<endl;
+    cout << "Loaded matrix:\n" << load_matrix << endl << endl;
 
     cout<<"FileIO complete\n\n";
 
+    rowvec rand_vec = randu<rowvec>(5);
+    cout << "rand_vec: " << rand_vec << endl << endl;
+    // Print out the vector, but sorted.
+    cout << "rand_vec sorted: " << sort(rand_vec) << endl << endl;
 
+    // Create a second random vector, and sort it according to the indices
+    // of the sorted rand_vec.
+    rowvec rand_vec2 = randu<rowvec>(5);
+    cout << "rand_vec2: " << rand_vec2 << endl << endl;
+    cout << "rand_vec2 sorted according to rand_vec order: "
+         << rand_vec2(sort_index(rand_vec)).t() << endl << endl;
+
+    // Solve a simple eigensystem.
+    mat sigma_z = {{0.0, 1.0}, {1.0, 0.0}};
+    vec eigvals;
+    mat eigvecs;
+    eig_sym(eigvals, eigvecs, sigma_z);
+    cout << "The eigenvalues of sigma_z are " << eigvals(0) << " and "
+         << eigvals(1) << "." << endl << endl;
+    cout << "The eigenvectors of sigma_z are " << endl << eigvecs.col(0).t() << endl
+         << "and" << endl << eigvecs.col(1).t() << endl;
+
+    // Submatrix views
+    mat M = {{0.0, 1.0, 2.0},
+             {3.0, 4.0, 5.0},
+             {6.0, 7.0, 8.0}};
+    cout << "The second row of M is: " << M.row(1) << endl << endl;
+    cout << "The third column of M is: " << endl <<  M.col(2) << endl << endl;
+    cout << "The second and third columns of the first and second rows of M : " << endl
+         <<  M(span(0, 1), span(1, 2)) << endl << endl;
+    // NON-contiguous submatrices
+    uvec row_ind = {0, 2};
+    uvec col_ind = {0, 1};
+    cout << "The first and second columns of the first and third rows of M: "  << endl
+         << M.submat(row_ind, col_ind) << endl << endl;
 
 	return 0; 
 }
-
 
 
